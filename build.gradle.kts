@@ -1,30 +1,37 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    val kotlinVersion: String by project
-    dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
-    }
-}
-
 plugins {
-    id("kotlinx.team.infra")
+    kotlin("multiplatform")
 }
 
-infra {
-    teamcity {
-        libraryStagingRepoDescription = project.name
+kotlin {
+    jvm()
+    js(IR) {
+        nodejs()
     }
-    publishing {
-        include(":kotlinx-cli")
-        libraryRepoUrl = "https://github.com/Kotlin/kotlinx-cli"
-        sonatype {}
-    }
-}
 
-allprojects {
-    repositories {
-        mavenCentral()
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                implementation("org.jetbrains.kotlin:kotlin-stdlib-common")
+            }
+        }
+        val jvmMain by getting {
+            dependencies {
+                implementation(kotlin("stdlib-jdk8"))
+            }
+        }
+        val jsMain by getting {
+            dependencies {
+                implementation(kotlin("stdlib-js"))
+            }
+        }
+        jvmMain.dependsOn(commonMain)
+        jsMain.dependsOn(commonMain)
+
+        all {
+            languageSettings {
+                optIn("kotlin.Experimental")
+                optIn("kotlinx.cli.ExperimentalCli")
+            }
+        }
     }
 }

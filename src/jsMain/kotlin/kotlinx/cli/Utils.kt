@@ -5,6 +5,12 @@
 
 package kotlinx.cli
 
+@JsModule("process")
+@JsNonModule
+external object Process {
+    fun exit(code: Int): Nothing
+}
+
 internal actual fun exitProcess(status: Int): Nothing {
-    kotlin.system.exitProcess(status)
+    Process.exit(0)
 }
